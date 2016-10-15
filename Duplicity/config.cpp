@@ -1,6 +1,6 @@
 #include "chlamydia.h"
 #include "json.hpp"
-
+#if 0
 //namespaces are evil but not really
 using json = nlohmann::json;
 
@@ -17,3 +17,4 @@ void Config::Load(std::string configFile)
 
 	buf >> config;
 }
+#endif

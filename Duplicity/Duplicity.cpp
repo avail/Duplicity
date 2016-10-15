@@ -2,7 +2,6 @@
 
 namespace Keys 
 {
-	static char GetWindowKey = 'X';
 	static char PlaySongKey = 'C';
 	static char DoubleTimeKey = 'V';
 	static char ResetKey = 'B';
@@ -75,6 +74,8 @@ HWND GetOsuHwnd()
 	return nullptr;
 }
 
+HWND g_osuWindow;
+
 int wmain(int argc, wchar_t* argv[])
 {
 	system("cls"); // clear console before beginning
@@ -91,9 +92,9 @@ int wmain(int argc, wchar_t* argv[])
 			PrintInfo();
 
 			// get osu! HWND
-			HWND osuWindow = GetOsuHwnd();
+			g_osuWindow = GetOsuHwnd();
 
-			if (osuWindow != nullptr)
+			if (g_osuWindow != nullptr)
 			{
 				wprintf(L"Found osu! window\n");
 			}
@@ -104,7 +105,7 @@ int wmain(int argc, wchar_t* argv[])
 			}
 
 			// load config
-			Config config;
+/*			Config config;
 			std::string configFile = "duplicity.json";
 
 			if (FileExists(configFile))
@@ -117,7 +118,7 @@ int wmain(int argc, wchar_t* argv[])
 				wprintf(L"No configuration file found - generated %s\n", configFile);
 				wprintf(L"Modify to your liking then run duplicity again.\n");
 				exit(0);
-			}
+			}*/
 
 			// parse beatmap
 			wprintf(L"Trying to parse %s\n", osuFile.substr(osuFile.find_last_of(L"\\") + 1).c_str());
@@ -130,41 +131,65 @@ int wmain(int argc, wchar_t* argv[])
 
 			bool allowDTToggle = false;
 			bool doubleTime = false;
+			bool songStarted = false;
+
+			int delayCounter = GetTickCount();
 
 			Player player;
-			player.Reset(); // just in case?
+			player.Reset();
 			player.SetSong(parser.GetParsedObjects());
 
 			// key-listener loop
 			while (true)
 			{
+				if (songStarted)
+				{
+					player.Update();
+				}
+
+				if (!(GetTickCount() - delayCounter > 150))
+				{
+					continue;
+				}
+
 				// doubleTime
 				if (GetAsyncKeyState(Keys::DoubleTimeKey) != 0)
 				{
 					if (doubleTime)
 					{
-						wprintf(L"doubleTime = false");
+						wprintf(L"doubleTime = false\n");
 						doubleTime = false;
 						player.SetDoubleTime(doubleTime);
 					}
 					else
 					{
-						wprintf(L"doubleTime = true");
+						wprintf(L"doubleTime = true\n");
 						doubleTime = true;
 						player.SetDoubleTime(doubleTime);
 					}
-
-					allowDTToggle = false;
 				}
-				else
+
+				if ((GetAsyncKeyState(Keys::PlaySongKey) != 0) && !songStarted)
 				{
-					allowDTToggle = true;
+					wprintf(L"song started\n");
+					player.StartFirstNote();
+					songStarted = true;
 				}
 
-				if (GetAsyncKeyState(Keys::PlaySongKey) != 0)
+				if (GetAsyncKeyState(Keys::ResetKey) != 0 && songStarted)
 				{
+					player.Reset();
+					songStarted = false;
+					wprintf(L"song reset\n");
 				}
 
+				if (GetAsyncKeyState(Keys::QuitKey) != 0)
+				{
+					// clean exit?
+					exit(0);
+				}
+
+				delayCounter = GetTickCount();
 			}
 
 			Sleep(50000); // deboog

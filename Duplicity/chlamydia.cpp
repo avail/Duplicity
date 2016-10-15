@@ -51,3 +51,62 @@ bool FileExists(const std::string& name) {
 	struct stat buffer;
 	return (stat(name.c_str(), &buffer) == 0);
 }
+
+void Convert(Vector2 &point, int resX, int resY)
+{
+	point.x = (1.6f * point.x) + 106.0f;
+	point.y = (1.4f * point.y) + 106.0f;
+
+	point.x = (float)point.x * (float)resX / 1024.0f;
+	point.y = (float)point.y * (float)resY / 768.0f;
+}
+
+void MoveCursor(Vector2 position)
+{
+	INPUT inputData;
+	inputData.type = INPUT_MOUSE;
+	inputData.mi.dwExtraInfo = NULL;
+	inputData.mi.dwFlags = MOUSEEVENTF_MOVE | MOUSEEVENTF_ABSOLUTE;
+	inputData.mi.time = NULL;
+	inputData.mi.dx = position.x;
+	inputData.mi.dy = position.y;
+
+	SendInput(1, &inputData, sizeof(INPUT));
+}
+
+void PressKey(int key)
+{
+	INPUT inputData;
+	inputData.type = INPUT_KEYBOARD;
+	inputData.ki.wScan = 0;
+	inputData.ki.time = 0;
+	inputData.ki.dwExtraInfo = 0;
+	inputData.ki.wVk = key;
+	inputData.ki.dwFlags = 0;
+
+	SendInput(1, &inputData, sizeof(INPUT));
+}
+
+void ReleaseKey(int key)
+{
+	INPUT inputData;
+	inputData.type = INPUT_KEYBOARD;
+	inputData.ki.wScan = 0;
+	inputData.ki.time = 0;
+	inputData.ki.dwExtraInfo = 0;
+	inputData.ki.wVk = key;
+	inputData.ki.dwFlags = KEYEVENTF_KEYUP;
+
+	SendInput(1, &inputData, sizeof(INPUT));
+}
+
+void Click()
+{
+	// TODO: random logic to alternate all 4 keys
+	PressKey('N');
+}
+
+void Release()
+{
+	ReleaseKey('N');
+}

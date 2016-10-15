@@ -13,9 +13,6 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="Source Files\actors">
-      <UniqueIdentifier>{223b9deb-ed81-4c96-a5ad-6eedc6d75636}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Duplicity.cpp">
@@ -35,9 +32,6 @@
     </ClCompile>
     <ClCompile Include="stopwatch.cpp">
       <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="hitcircle.cpp">
-      <Filter>Source Files\actors</Filter>
     </ClCompile>
     <ClCompile Include="config.cpp">
       <Filter>Source Files</Filter>

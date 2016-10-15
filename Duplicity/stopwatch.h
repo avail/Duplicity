@@ -2,16 +2,16 @@
 
 class StopWatch {
 private:
-	int start = 0;
-	bool started = false;
+	clock_t start;
+	bool started;
 	
 public:
 	inline StopWatch()
 	{
-		
+		this->start = 0;
+		this->started = false;
 	}
 
-	void Initialize();
 	void Start();
 	int Elapsed();
 	void Stop();

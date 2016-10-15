@@ -4,7 +4,7 @@ void StopWatch::Start()
 {
 	if (!started)
 	{
-		start = GetTickCount();
+		start = clock();
 		started = true;
 	}
 }
@@ -25,15 +25,17 @@ int StopWatch::Elapsed()
 {
 	if (started)
 	{
-		return GetTickCount() - start;
+		return clock() - start;
 	}
+
+	return 0;
 }
 
 void StopWatch::Reset()
 {
 	if (started)
 	{
-		start = GetTickCount();
+		start = clock();
 		started = false;
 	}
 }

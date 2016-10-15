@@ -155,7 +155,6 @@
     <ClCompile Include="config.cpp" />
     <ClCompile Include="Duplicity.cpp" />
     <ClCompile Include="chlamydia.cpp" />
-    <ClCompile Include="hitcircle.cpp" />
     <ClCompile Include="player.cpp" />
     <ClCompile Include="stopwatch.cpp" />
   </ItemGroup>
