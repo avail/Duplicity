@@ -40,11 +40,12 @@ void Player::StartFirstNote()
 	hasStarted = true;
 }
 
-float InterpSpeed = 1.0f;
+float InterpSpeed = 1300.0f;
 
-// TODO: move out of here
-void Player::PerformSingleClick(Vector2 position)
+void Player::CursorMovement(Vector2 position)
 {
+	float elapsed = moveWatch.Elapsed() / 1000.0f;
+
 	POINT cursor;
 	GetCursorPos(&cursor);
 
@@ -53,10 +54,10 @@ void Player::PerformSingleClick(Vector2 position)
 	dest.y = position.y;
 
 	RECT clientSize;
-	GetClientRect(g_osuWindow, &clientSize);
+	GetWindowRect(g_osuWindow, &clientSize);
 
 	Convert(dest, clientSize.right - clientSize.left, clientSize.bottom - clientSize.top);
-	
+
 	Vector2 newPos;
 
 	POINT newPosPoint;
@@ -72,59 +73,94 @@ void Player::PerformSingleClick(Vector2 position)
 
 	if (cursor.x < dest.x)
 	{
-		cursor.x += (int)(InterpSpeed * watch.Elapsed());
+		cursor.x += InterpSpeed * elapsed;
 	}
-
+	
 	if (cursor.x > dest.x)
 	{
-		cursor.x -= (int)(InterpSpeed * watch.Elapsed());
+		cursor.x -= InterpSpeed * elapsed;
 	}
 
 	if (cursor.y < dest.y)
 	{
-		cursor.y += (int)(InterpSpeed * watch.Elapsed());
+		cursor.y += InterpSpeed * elapsed;
 	}
 
 	if (cursor.y > dest.y)
 	{
-		cursor.y -= (int)(InterpSpeed * watch.Elapsed());
+		cursor.y -= InterpSpeed * elapsed;
 	}
 
-	MoveCursor(Vector2(cursor.x, cursor.y));
+	SetCursorPos(cursor.x, cursor.y);
+}
 
-	wprintf(L"%i, %i\n", cursor.x, cursor.y);
+void Player::MaybePerformClickHold()
+{
+	if (!isHolding)
+	{
+		Click();
+	}
+	else if (isHolding && watch.Elapsed() + noteDelay == objects[currentNote].StartTime)
+	{
+		Release();
+		isHolding = false;
+	}
+}
 
-	/*Click();
-	Release();*/
+// TODO: move out of here
+void Player::PerformSingleClick()
+{
+	QueueUserWorkItem([](LPVOID) -> DWORD
+	{
+		Click();
+		Sleep(10);
+		Release();
+
+		return 0;
+	}, nullptr, 0);
 }
 
 void Player::Update()
 {
-	HitObjectBase currentObject = objects[currentNote];
-	while (currentObject.StartTime != watch.Elapsed() + noteDelay);
-
-	wprintf(L"note to be clicked now! type: %i, currentNote: %i, watch: %i, StartTime: %i, noteDelay: %i\n", currentObject.Type, currentNote, watch.Elapsed(), currentObject.StartTime, noteDelay);
-
-	switch (currentObject.Type)
-	{
-	case HitObjectType::Slider:
-	case HitObjectType::SliderNewCombo:
-		
-		break;
-	case HitObjectType::Normal:
-	case HitObjectType::NormalNewCombo:
-		PerformSingleClick(currentObject.Position);
-		break;
-	case HitObjectType::Spinner:
-		break;
-	}
-
 	if (currentNote == totalNotes)
 	{
 		wprintf(L"finished the song!\n");
 		Reset();
 		return;
 	}
+
+	HitObjectBase currentObject = objects[currentNote];
+	while (!(currentObject.StartTime <= watch.Elapsed() + noteDelay))
+	{
+		moveWatch.Start(); // omg starting a *maybe* started thing? well yeah my stopwatch doesnt re-init if already started lol
+
+		Sleep(5);
+		CursorMovement(currentObject.Position);
+
+		moveWatch.Reset();
+		moveWatch.Start(); 
+	}
+
+	wprintf(L"click! type: %i, xPos: %.2f, yPos: %.2f\n", currentObject.Type, currentObject.Position.x, currentObject.Position.y);
+
+	switch (currentObject.Type)
+	{
+	case HitObjectType::Slider:
+	case HitObjectType::SliderNewCombo:
+		stopHoldTime = currentObject.EndTime;
+		isHolding = true;
+		break;
+	case HitObjectType::Normal:
+	case HitObjectType::NormalNewCombo:
+		PerformSingleClick();
+		break;
+	case HitObjectType::Spinner:
+		stopHoldTime = currentObject.EndTime;
+		isHolding = true;
+		break;
+	}
+
+	MaybePerformClickHold();
 
 	currentNote++;
 }

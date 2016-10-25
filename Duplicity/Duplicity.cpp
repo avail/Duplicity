@@ -78,6 +78,8 @@ HWND g_osuWindow;
 
 int wmain(int argc, wchar_t* argv[])
 {
+	timeBeginPeriod(1);
+
 	system("cls"); // clear console before beginning
 
 	// we need an .osu file to run
@@ -101,7 +103,9 @@ int wmain(int argc, wchar_t* argv[])
 			else
 			{
 				wprintf(L"how do you plan on running a cheat without a game\n");
+#ifndef _DEBUG
 				exit(0);
+#endif
 			}
 
 			// load config
@@ -142,7 +146,7 @@ int wmain(int argc, wchar_t* argv[])
 			// key-listener loop
 			while (true)
 			{
-				if (songStarted)
+				if (player.IsPlaying())
 				{
 					player.Update();
 				}

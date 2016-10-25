@@ -1,10 +1,12 @@
 #pragma once
 
 #pragma comment(lib, "Kernel32.lib")
+#pragma comment(lib, "winmm.lib")
 
 #include <stdio.h>
 #include <tchar.h>
 #include <windows.h>
+#include <mmsystem.h>
 #include <string>
 #include <tlhelp32.h>
 #include <stdlib.h>

@@ -61,19 +61,6 @@ void Convert(Vector2 &point, int resX, int resY)
 	point.y = (float)point.y * (float)resY / 768.0f;
 }
 
-void MoveCursor(Vector2 position)
-{
-	INPUT inputData;
-	inputData.type = INPUT_MOUSE;
-	inputData.mi.dwExtraInfo = NULL;
-	inputData.mi.dwFlags = MOUSEEVENTF_MOVE | MOUSEEVENTF_ABSOLUTE;
-	inputData.mi.time = NULL;
-	inputData.mi.dx = position.x;
-	inputData.mi.dy = position.y;
-
-	SendInput(1, &inputData, sizeof(INPUT));
-}
-
 void PressKey(int key)
 {
 	INPUT inputData;
@@ -82,9 +69,12 @@ void PressKey(int key)
 	inputData.ki.time = 0;
 	inputData.ki.dwExtraInfo = 0;
 	inputData.ki.wVk = key;
-	inputData.ki.dwFlags = 0;
+	inputData.ki.dwFlags = KEYEVENTF_EXTENDEDKEY;
 
-	SendInput(1, &inputData, sizeof(INPUT));
+	if (SendInput(1, &inputData, sizeof(INPUT)) == 0)
+	{
+		wprintf(L"errorino %d\n", GetLastError());
+	}
 }
 
 void ReleaseKey(int key)
@@ -103,10 +93,10 @@ void ReleaseKey(int key)
 void Click()
 {
 	// TODO: random logic to alternate all 4 keys
-	PressKey('N');
+	PressKey('M');
 }
 
 void Release()
 {
-	ReleaseKey('N');
+	ReleaseKey('M');
 }

@@ -9,10 +9,13 @@ private:
 	int currentNote;
 	int totalNotes;
 	int noteDelay;
+	int stopHoldTime;
+	bool isHolding;
 
 	std::vector<HitObjectBase> objects;
 
 	StopWatch watch;
+	StopWatch moveWatch;
 
 public:
 	inline Player()
@@ -22,6 +25,8 @@ public:
 		this->currentNote = 0;
 		this->totalNotes = 0;
 		this->noteDelay = 0;
+		this->stopHoldTime = 0;
+		this->isHolding = false;
 	}
 
 	void SetDoubleTime(bool value);
@@ -30,5 +35,7 @@ public:
 	bool SetSong(std::vector<HitObjectBase> base);
 	void StartFirstNote();
 	void Update();
-	void PerformSingleClick(Vector2 position);
+	void CursorMovement(Vector2 position);
+	void MaybePerformClickHold();
+	void PerformSingleClick();
 };
